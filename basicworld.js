@@ -202,18 +202,23 @@ class loadedWorld {
       plane.rotation.x = -Math.PI / 2;
       this.scene.add(plane);
       this.object = [];
-      this._LoadModel();      
+      this._LoadModel(); 
+
+     // this._LoadAnimatedModel();   
+     this.objectGroup = new THREE.Group();  
       this._RAF();
       
       this.dControls = new DragControls(this.object, this.camera, this.renderer.domElement);
-
+      this.dControls.transformGroup = true;
       this.dControls.addEventListener("hoveron", function (event) {
         
-        event.object.material.wireframe = true;
+       // event.object.material.wireframe = true;
+        orbitControls.enabled = false;
       });
       this.dControls.addEventListener("hoveroff", function (event) {
         
-        event.object.material.wireframe = false;
+       // event.object.material.wireframe = false;
+        orbitControls.enabled = true;
       });
   }
 
@@ -240,9 +245,10 @@ class loadedWorld {
           const m = new THREE.AnimationMixer(fbx);
           this.mixers.push(m);
           const idle = m.clipAction(anim.animations[0]);
-          idle.play();
+          //idle.play();
         });
         this.scene.add(fbx);
+       // this.object.push(fbx);
       });
 
   }
@@ -275,11 +281,14 @@ class loadedWorld {
           gltf.scene.traverse(c => {
               c.castShadow = true;
             });
+            console.log(gltf)
+            //this.objectGroup.add(gltf.scene)
             this.object.push(gltf.scene);
             this.scene.add(gltf.scene);
 
   
       });
+      //this.object.push(this.objectGroup);
   }
 
   _OnWindowResize() {
