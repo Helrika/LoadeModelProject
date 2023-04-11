@@ -1,0 +1,333 @@
+{
+  "accessors": [
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 9105,
+      "max": [
+        86.12702178955078,
+        22.70677375793457,
+        0.623262882232666
+      ],
+      "min": [
+        -85.66191101074219,
+        -22.935199737548828,
+        -75.9870376586914
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 109260,
+      "componentType": 5126,
+      "count": 9105,
+      "max": [
+        0.99998539686203,
+        0.9999907612800598,
+        0.9999963045120239
+      ],
+      "min": [
+        -0.9999864101409912,
+        -0.9999744296073914,
+        -0.9999843835830688
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 9105,
+      "max": [
+        0.9999999403953552,
+        0.9999983310699463,
+        0.9999390244483948,
+        1.0
+      ],
+      "min": [
+        -0.9999999403953552,
+        -0.9996886253356934,
+        -0.9999322295188904,
+        1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 9105,
+      "max": [
+        0.9969599843025208,
+        0.9969199895858765
+      ],
+      "min": [
+        0.0007300000288523734,
+        0.0007300000288523734
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 72840,
+      "componentType": 5126,
+      "count": 9105,
+      "max": [
+        0.9969599843025208,
+        0.9969199895858765
+      ],
+      "min": [
+        0.0007300000288523734,
+        0.0007300000288523734
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 145680,
+      "componentType": 5126,
+      "count": 9105,
+      "max": [
+        0.9969599843025208,
+        0.9969199895858765
+      ],
+      "min": [
+        0.0007300000288523734,
+        0.0007300000288523734
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 218520,
+      "componentType": 5126,
+      "count": 9105,
+      "max": [
+        0.9969599843025208,
+        0.9969199895858765
+      ],
+      "min": [
+        0.0007300000288523734,
+        0.0007300000288523734
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 45522,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "Guay0 (https://sketchfab.com/Guay0)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/old-wooden-bench-3d-scan-quixel-megascans-a05c91f041f0485a9fb7ed40237853b9",
+      "title": "Old Wooden Bench - 3D scan Quixel Megascans"
+    },
+    "generator": "Sketchfab-15.12.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 182088,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 291360,
+      "byteOffset": 182088,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 218520,
+      "byteOffset": 473448,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 145680,
+      "byteOffset": 691968,
+      "byteStride": 16,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 837648,
+      "uri": "scene.bin"
+    }
+  ],
+  "images": [
+    {
+      "uri": "textures/Old_Wooden_ueigebjfa_baseColor.jpeg"
+    },
+    {
+      "uri": "textures/Old_Wooden_ueigebjfa_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/Old_Wooden_ueigebjfa_normal.jpeg"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "name": "Old_Wooden_ueigebjfa",
+      "normalTexture": {
+        "index": 2
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicFactor": 0.0,
+        "metallicRoughnessTexture": {
+          "index": 1
+        }
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Object_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0,
+            "TANGENT": 2,
+            "TEXCOORD_0": 3,
+            "TEXCOORD_1": 4,
+            "TEXCOORD_2": 5,
+            "TEXCOORD_3": 6
+          },
+          "indices": 7,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.220446049250313e-16,
+        -1.0,
+        0.0,
+        0.0,
+        1.0,
+        2.220446049250313e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [
+        2
+      ],
+      "name": "root"
+    },
+    {
+      "children": [
+        3
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.220446049250313e-16,
+        1.0,
+        0.0,
+        0.0,
+        -1.0,
+        2.220446049250313e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "GLTF_SceneRootNode"
+    },
+    {
+      "children": [
+        4
+      ],
+      "matrix": [
+        0.007071067564412799,
+        -4.561941838905323e-10,
+        -0.007071067743216772,
+        0.0,
+        0.007071067743216701,
+        -1.1013502063971127e-09,
+        0.0070710675644128,
+        0.0,
+        -1.1013502058420013e-09,
+        -0.009999999776482511,
+        -4.561941833354208e-10,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Aset_wood_other_M_ueigebjfa_LOD0_2"
+    },
+    {
+      "mesh": 0,
+      "name": "Object_4"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "sampler": 0,
+      "source": 2
+    }
+  ]
+}
