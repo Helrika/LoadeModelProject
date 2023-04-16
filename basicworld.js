@@ -134,7 +134,11 @@ class BasicCharacterControls {
 
 class loadedWorld {
   constructor() {
-      this._Initialize(); 
+      this._Initialize();
+      this._InitializeLights();
+      this._InitializeCamera();
+      this._InitializeScene(); 
+      this._loadCube();
   }
 
   _Initialize() {
@@ -159,7 +163,22 @@ class loadedWorld {
       this.previousRAF = null;
       //animation state
       this.mixers = [];
+      this.object = [];
+      this.simpleobject = [];  
 
+
+
+
+
+
+      this._RAF();
+      
+
+  }
+
+
+  //
+  _InitializeLights(){
       //lighting
       this.scene.add(new THREE.AmbientLight(0xffffff, 0.7))
 
@@ -178,9 +197,11 @@ class loadedWorld {
 
       dirLight = new THREE.AmbientLight(0x101010);
       this.scene.add(dirLight);
+  }
 
+  _InitializeCamera() {
       //camera
-      this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+      this.camera = new THREE.PerspectiveCamera(95, window.innerWidth / window.innerHeight, 0.1, 1000);
       this.camera.position.set(75, 20, 0);
 
       const orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -191,25 +212,8 @@ class loadedWorld {
       orbitControls.maxPolarAngle = Math.PI / 2 - 0.05
       orbitControls.update();
 
-      //geometry
-      const plane = new THREE.Mesh(
-          new THREE.PlaneGeometry(100, 100, 10, 10),
-          new THREE.MeshStandardMaterial({
-              color: 0xFFFFFF,
-            }));
-      plane.castShadow = false;
-      plane.receiveShadow = true;
-      plane.rotation.x = -Math.PI / 2;
-      this.scene.add(plane);
-      this.object = [];
-      this._LoadModel(); 
-
-     // this._LoadAnimatedModel();   
-     this.objectGroup = new THREE.Group();  
-      this._RAF();
-      
       this.dControls = new DragControls(this.object, this.camera, this.renderer.domElement);
-      this.dControls.transformGroup = true;
+      this.dControls.transformGroup = false;
       this.dControls.addEventListener("hoveron", function (event) {
         
        // event.object.material.wireframe = true;
@@ -219,71 +223,81 @@ class loadedWorld {
         
        // event.object.material.wireframe = false;
         orbitControls.enabled = true;
+      }); 
+
+      this.dControls2 = new DragControls(this.simpleobject, this.camera, this.renderer.domElement);
+      this.dControls2.transformGroup = false;
+      this.dControls2.addEventListener("hoveron", function (event) {
+        
+       // event.object.material.wireframe = true;
+        orbitControls.enabled = false;
       });
+      this.dControls2.addEventListener("hoveroff", function (event) {
+        
+       // event.object.material.wireframe = false;
+        orbitControls.enabled = true;
+      });    
+  }
+  _InitializeScene() {
+      //geometry
+      const plane = new THREE.Mesh(
+        new THREE.PlaneGeometry(100, 100, 10, 10),
+        new THREE.MeshStandardMaterial({
+            color: 0xFFFFFF,
+          }));
+    plane.castShadow = false;
+    plane.receiveShadow = true;
+    plane.rotation.x = -Math.PI / 2;
+    let plane1BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+    //gets the boundaries
+    plane1BB.setFromObject(plane);
+    this.scene.add(plane);
+    
+    this._LoadModel(); 
   }
 
   //animated model
+  _loadCube () {
+    this.box = new THREE.Mesh(
+      new THREE.BoxGeometry(10, 10, 10),
+      new THREE.MeshPhongMaterial({
+          color: 0xFFFFFF,
+        }));
+        this.box.position.set(5,5,15);
+        this.box.castShadow = true;
+        this.box.receiveShadow = true;
 
-  _LoadAnimatedModel() {
-      const loader = new FBXLoader();
-      loader.setPath('./resources/peasant/');
-      loader.load('PeasantGirl.fbx', (fbx) => {
-        fbx.scale.setScalar(0.1);
-        fbx.traverse(c => {
-          c.castShadow = true;
-        });
-  
-        const params = {
-          target: fbx,
-          camera: this.camera,
-        }
-        this.controls = new BasicCharacterControls(params);
-  
-        const anim = new FBXLoader();
-        anim.setPath('./resources/peasant/');
-        anim.load('Walking.fbx', (anim) => {
-          const m = new THREE.AnimationMixer(fbx);
-          this.mixers.push(m);
-          const idle = m.clipAction(anim.animations[0]);
-          //idle.play();
-        });
-        this.scene.add(fbx);
-       // this.object.push(fbx);
-      });
 
+    //bounding box
+    this.box1BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+    //gets the boundaries
+    this.box1BB.setFromObject(this.box);
+    //console.log(box1BB);
+    this.simpleobject.push(this.box);   
+    this.scene.add(this.box) ;
   }
-  // _LoadAnimatedModelAndPlay(path, modelFile, animFile, offset) {
-  //     const loader = new FBXLoader();
-  //     loader.setPath(path);
-  //     loader.load(modelFile, (fbx) => {
-  //       fbx.scale.setScalar(0.1);
-  //       fbx.traverse(c => {
-  //         c.castShadow = true;
-  //       });
-  //       fbx.position.copy(offset);
-  
-  //       const anim = new FBXLoader();
-  //       anim.setPath(path);
-  //       anim.load(animFile, (anim) => {
-  //         const m = new THREE.AnimationMixer(fbx);
-  //         this._mixers.push(m);
-  //         const idle = m.clipAction(anim.animations[0]);
-  //         idle.play();
-  //       });
-  //       this.scene.add(fbx);
-  //     });
-  //   }
+
   //static model
   _LoadModel() {
 
       const loader = new GLTFLoader();
-      loader.load('./resources/rocket/Rocket_Ship_01.gltf', (gltf) => {
+      loader.load('./resources/cab/scene.gltf', (gltf) => {
           gltf.scene.traverse(c => {
               c.castShadow = true;
+              
             });
             console.log(gltf)
+            gltf.scene.position.x =20;
+            gltf.scene.scale.x = 2;
+            gltf.scene.scale.y = 2;
+            gltf.scene.scale.z = 2;
             //this.objectGroup.add(gltf.scene)
             this.object.push(gltf.scene);
+                //bounding box
+            this.rok1BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+              //gets the boundaries
+             this.rok1BB.setFromObject(gltf.scene);
+            console.log(this.rok1BB);     
             this.scene.add(gltf.scene);
 
   
@@ -296,13 +310,44 @@ class loadedWorld {
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
+  _checkCollisions() {
+    // console.log(this.rok1BB);
+    // console.log("heheh")
+    // console.log(this.box1BB)
+    if(this.object.length >=1) {
+      if(this.rok1BB.intersectsBox(this.box1BB)) {
+        this.box.position.y=this.rok1BB.max.y+5;
+      } else {
+        this.box.position.y =5;
+      }
+    }
+
+  }  
   
   _RAF() {
       requestAnimationFrame((t) => {
           if (this.previousRAF === null) {
             this.previousRAF = t;
           }
-    
+          if(this.object.length>= 1) {
+            for(let i = 0; i< this.object.length; i++) {
+              this.rok1BB.copy(this.object[i].children[0].children[0].children[0].children[0].children[0].geometry.boundingBox).applyMatrix4(this.object[i].children[0].children[0].children[0].children[0].children[0].matrixWorld)
+          
+            }
+          
+             // console.log(this.rok1BB);
+          }
+          if(this.simpleobject.length>= 1) {
+            for(let i = 0; i< this.object.length; i++) {
+              this.box1BB.copy(this.simpleobject[i].geometry.boundingBox).applyMatrix4(this.simpleobject[i].matrixWorld)
+          
+            }
+          
+             // console.log(this.rok1BB);
+          }
+
+          
+          this._checkCollisions();
           this._RAF();
     
           this.renderer.render(this.scene, this.camera);
