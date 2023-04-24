@@ -1,0 +1,11 @@
+Model Information:
+* title:	simple_table
+* source:	https://sketchfab.com/3d-models/simple-table-41f37893a8d94980bffaff4571dc7e24
+* author:	lexa.kir777 (https://sketchfab.com/lexa.kir777)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "simple_table" (https://sketchfab.com/3d-models/simple-table-41f37893a8d94980bffaff4571dc7e24) by lexa.kir777 (https://sketchfab.com/lexa.kir777) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

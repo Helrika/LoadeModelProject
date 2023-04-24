@@ -7,7 +7,6 @@ import {DragControls} from './build/three/examples/jsm/controls/DragControls.js'
 
 import {FBXLoader} from './build/three/examples/jsm/loaders/FBXLoader.js';
 import {GLTFLoader} from './build/three/examples/jsm/loaders/GLTFLoader.js';
-
 class BasicCharacterControls {
   constructor(params) {
     this._Init(params);
@@ -139,6 +138,7 @@ class loadedWorld {
       this._InitializeCamera();
       this._InitializeScene(); 
       this._loadCube();
+      this.raycast();
   }
 
   _Initialize() {
@@ -165,11 +165,11 @@ class loadedWorld {
       this.mixers = [];
       this.object = [];
       this.simpleobject = [];  
+      this.resourcename = ["cab", "food"];
+      this.setbounds = [];
 
 
-
-
-
+      this.stoneGeo = new THREE.BoxGeometry(0,0,0);
 
       this._RAF();
       
@@ -212,48 +212,133 @@ class loadedWorld {
       orbitControls.maxPolarAngle = Math.PI / 2 - 0.05
       orbitControls.update();
 
-      this.dControls = new DragControls(this.object, this.camera, this.renderer.domElement);
-      this.dControls.transformGroup = false;
-      this.dControls.addEventListener("hoveron", function (event) {
-        
-       // event.object.material.wireframe = true;
-        orbitControls.enabled = false;
-      });
-      this.dControls.addEventListener("hoveroff", function (event) {
-        
-       // event.object.material.wireframe = false;
-        orbitControls.enabled = true;
-      }); 
 
-      this.dControls2 = new DragControls(this.simpleobject, this.camera, this.renderer.domElement);
-      this.dControls2.transformGroup = false;
-      this.dControls2.addEventListener("hoveron", function (event) {
+     
+      // this.dControls = new DragControls(this.object, this.camera, this.renderer.domElement);
+      // this.dControls.transformGroup = false;
+      // this.dControls.addEventListener("hoveron", function (event) {
         
-       // event.object.material.wireframe = true;
-        orbitControls.enabled = false;
-      });
-      this.dControls2.addEventListener("hoveroff", function (event) {
+      //  // event.object.material.wireframe = true;
+      //   orbitControls.enabled = false;
+      // });
+      // this.dControls.addEventListener("hoveroff", function (event) {
         
-       // event.object.material.wireframe = false;
-        orbitControls.enabled = true;
-      });    
+      //  // event.object.material.wireframe = false;
+      //   orbitControls.enabled = true;
+      // }); 
+
+      // this.dControls2 = new DragControls(this.simpleobject, this.camera, this.renderer.domElement);
+      // this.dControls2.transformGroup = false;
+      // this.dControls2.addEventListener("hoveron", function (event) {
+        
+      //  // event.object.material.wireframe = true;
+      //   orbitControls.enabled = false;
+      // });
+      // this.dControls2.addEventListener("hoveroff", function (event) {
+        
+      //  // event.object.material.wireframe = false;
+      //   orbitControls.enabled = true;
+      // });    
   }
   _InitializeScene() {
       //geometry
-      const plane = new THREE.Mesh(
+      const textures = new THREE.TextureLoader();
+      const maxAnisotropy = this.renderer.capabilities.getMaxAnisotropy();
+      const floorMaterial= this.loadMaterial_('Metal_ArtDeco_Tiles_001_', 4);
+      // floor.anisotropy = maxAnisotropy;
+      // floor.wrapS = THREE.RepeatWrapping;
+      // floor.wrapT = THREE.RepeatWrapping;
+      // floor.repeat.set(32, 32);
+      // floor.encoding = THREE.sRGBEncoding;
+      this.plane = new THREE.Mesh(
         new THREE.PlaneGeometry(100, 100, 10, 10),
-        new THREE.MeshStandardMaterial({
-            color: 0xFFFFFF,
-          }));
-    plane.castShadow = false;
-    plane.receiveShadow = true;
-    plane.rotation.x = -Math.PI / 2;
-    let plane1BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+        floorMaterial);
+    this.plane.castShadow = false;
+    this.plane.receiveShadow = true;
+    this.plane.rotation.x = -Math.PI / 2;
+    this.plane.userData.ground= true;
+   this.plane1BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
     //gets the boundaries
-    plane1BB.setFromObject(plane);
-    this.scene.add(plane);
+    this.plane1BB.setFromObject(this.plane);
+    this.scene.add(this.plane);
+        //  this._LoadtestModel();
     
-    this._LoadModel(); 
+    const wallMaterial = this.loadMaterial_('Substance_graph_', 4);
+
+    const wall1 = new THREE.Mesh(
+      new THREE.BoxGeometry(100, 100, 4),
+      wallMaterial);
+    wall1.position.set(0, 40, -50);
+    wall1.castShadow = true;
+    wall1.receiveShadow = true;
+    this.scene.add(wall1);
+
+    const wall2 = new THREE.Mesh(
+      new THREE.BoxGeometry(100, 100, 4),
+      wallMaterial);
+    wall2.position.set(0, 40, 50);
+    wall2.castShadow = true;
+    wall2.receiveShadow = true;
+    this.scene.add(wall2);
+
+
+
+    const wall4 = new THREE.Mesh(
+      new THREE.BoxGeometry(4, 100, 100),
+      wallMaterial);
+    wall4.position.set(-50, 40, 0);
+    wall4.castShadow = true;
+    wall4.receiveShadow = true;
+    this.scene.add(wall4);
+
+    
+    this._Load2Model();
+    this._LoadCouchModel();
+    this._Load2PlateModel(); 
+    this._LoadBigTableModel();
+    this._LoadBookModel();
+
+  }
+
+
+  loadMaterial_(name, tiling) {
+    //you can use this to load mateirials. edit the stuff in here and remove placeholder assets
+    const mapLoader = new THREE.TextureLoader();
+    const maxAnisotropy = this.renderer.capabilities.getMaxAnisotropy();
+
+    const metalMap = mapLoader.load('resources/walls/' + name + 'metallic.jpg');
+    metalMap.anisotropy = maxAnisotropy;
+    metalMap.wrapS = THREE.RepeatWrapping;
+    metalMap.wrapT = THREE.RepeatWrapping;
+    metalMap.repeat.set(tiling, tiling);
+
+    const albedo = mapLoader.load('resources/walls/' + name + 'basecolor.jpg');
+    albedo.anisotropy = maxAnisotropy;
+    albedo.wrapS = THREE.RepeatWrapping;
+    albedo.wrapT = THREE.RepeatWrapping;
+    albedo.repeat.set(tiling, tiling);
+    albedo.encoding = THREE.sRGBEncoding;
+
+    const normalMap = mapLoader.load('resources/walls/' + name + 'normal.jpg');
+    normalMap.anisotropy = maxAnisotropy;
+    normalMap.wrapS = THREE.RepeatWrapping;
+    normalMap.wrapT = THREE.RepeatWrapping;
+    normalMap.repeat.set(tiling, tiling);
+
+    const roughnessMap = mapLoader.load('resources/walls/' + name + 'roughness.jpg');
+    roughnessMap.anisotropy = maxAnisotropy;
+    roughnessMap.wrapS = THREE.RepeatWrapping;
+    roughnessMap.wrapT = THREE.RepeatWrapping;
+    roughnessMap.repeat.set(tiling, tiling);
+
+    const material = new THREE.MeshStandardMaterial({
+      metalnessMap: metalMap,
+      map: albedo,
+      normalMap: normalMap,
+      roughnessMap: roughnessMap,
+    });
+
+    return material;
   }
 
   //animated model
@@ -275,70 +360,315 @@ class loadedWorld {
     //console.log(box1BB);
     this.simpleobject.push(this.box);   
     this.scene.add(this.box) ;
+    this.box.userData.draggable = true;
+    this.box.userData.name = "BOX";
   }
 
   //static model
-  _LoadModel() {
 
-      const loader = new GLTFLoader();
-      loader.load('./resources/cab/scene.gltf', (gltf) => {
-          gltf.scene.traverse(c => {
-              c.castShadow = true;
-              
-            });
-            console.log(gltf)
-            gltf.scene.position.x =20;
-            gltf.scene.scale.x = 2;
-            gltf.scene.scale.y = 2;
-            gltf.scene.scale.z = 2;
-            //this.objectGroup.add(gltf.scene)
-            this.object.push(gltf.scene);
-                //bounding box
-            this.rok1BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-              //gets the boundaries
-             this.rok1BB.setFromObject(gltf.scene);
-            console.log(this.rok1BB);     
-            this.scene.add(gltf.scene);
+  _LoadCouchModel() {
+    
+    const loader = new GLTFLoader();
+    
+    loader.load('./resources/couch/couch.gltf', (gltf) => {
+        gltf.scene.traverse(c => {
+            c.castShadow = true;
+    
+          });
+        // console.log(gltf.scene.children[0].children[0].children[0].children[0].children[0]);
 
+         //stoneGeo = mergeBufferGeometries([stoneGeo,gltf.scene.children[0].children[0] ]);
+         gltf.scene.children[0].children[0].children[0].children[0].children[0].position.set(0,0,-20);
+         gltf.scene.children[0].children[0].children[0].children[0].children[0].scale.set(.1,.1,.1); 
+
+          this.object.push(gltf.scene.children[0].children[0].children[0].children[0].children[0]);
+          gltf.scene.children[0].children[0].children[0].children[0].children[0].userData.draggable = true;
+           gltf.scene.children[0].children[0].children[0].children[0].children[0].userData.name = "couch";
+          
+        //       //bounding box
+               this.rok7BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+        //       //gets the boundaries
+              this.rok7BB.setFromObject(gltf.scene.children[0].children[0].children[0].children[0].children[0]);
+        //  // console.log(this.rok1BB);     
+          this.scene.add(gltf.scene.children[0].children[0].children[0].children[0].children[0]);
   
-      });
-      //this.object.push(this.objectGroup);
+  
+    });
+    //this.object.push(this.objectGroup);
   }
 
+  _LoadBigTableModel() {
+    
+    const loader = new GLTFLoader();
+    
+    loader.load('./resources/table/couch.gltf', (gltf) => {
+        gltf.scene.traverse(c => {
+            c.castShadow = true;
+    
+          });
+        // console.log(gltf.scene.children[0]);
+
+         //stoneGeo = mergeBufferGeometries([stoneGeo,gltf.scene.children[0].children[0] ]);
+         gltf.scene.children[0].position.set(-20,0,-20);
+         gltf.scene.children[0].scale.set(15,10,12); 
+         gltf.scene.children[0].rotation.y = Math.PI/2;
+          this.object.push(gltf.scene.children[0]);
+          gltf.scene.children[0].userData.draggable = true;
+          gltf.scene.children[0].userData.name = "big table";
+          
+        //       //bounding box
+               this.rok1BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+        //       //gets the boundaries
+              this.rok1BB.setFromObject(gltf.scene.children[0]);
+        //  // console.log(this.rok1BB);     
+          this.scene.add(gltf.scene.children[0]);
+  
+  
+    });
+    //this.object.push(this.objectGroup);
+  }
+
+  _LoadBookModel() {
+    
+    const loader = new GLTFLoader();
+    
+    loader.load('./resources/book/book.gltf', (gltf) => {
+        gltf.scene.traverse(c => {
+            c.castShadow = true;
+    
+          });
+         console.log(gltf.scene.children[0]);
+
+         //stoneGeo = mergeBufferGeometries([stoneGeo,gltf.scene.children[0].children[0] ]);
+         gltf.scene.children[0].position.set(-20,0,-20);
+         gltf.scene.children[0].scale.set(1,1,1); 
+         gltf.scene.children[0].rotation.z = Math.PI/2;
+          this.object.push(gltf.scene.children[0]);
+          gltf.scene.children[0].userData.draggable = true;
+          gltf.scene.children[0].userData.name = "book";
+          
+        //       //bounding box
+               this.rok2BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+        //       //gets the boundaries
+              this.rok2BB.setFromObject(gltf.scene.children[0]);
+        //  // console.log(this.rok1BB);     
+          this.scene.add(gltf.scene.children[0]);
+  
+  
+    });
+    //this.object.push(this.objectGroup);
+  }
+
+  _Load2Model() {
+
+    const loader = new GLTFLoader();
+
+    loader.load('./resources/cab/scene.gltf', (gltf) => {
+        gltf.scene.traverse(c => {
+            c.castShadow = true;
+            
+          });
+         // console.log(gltf)
+          gltf.scene.children[0].children[0].children[0].children[0].position.set(0,0,0);
+          gltf.scene.children[0].children[0].children[0].children[0].children[0].scale.set(2,2,2)
+          //this.objectGroup.add(gltf.scene)
+          this.object.push(gltf.scene.children[0].children[0].children[0].children[0].children[0]);
+         gltf.scene.children[0].children[0].children[0].children[0].children[0].userData.draggable = true;
+          gltf.scene.children[0].children[0].children[0].children[0].children[0].userData.name = "Table2";
+              //bounding box
+          this.rok5BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+            //gets the boundaries
+           this.rok5BB.setFromObject(gltf.scene.children[0].children[0].children[0].children[0].children[0]);
+        // console.log(this.rok1BB);     
+          this.scene.add(gltf.scene.children[0].children[0].children[0].children[0].children[0]);
+
+
+    });
+    //this.object.push(this.objectGroup);
+}  
+
+
+
+
+
+_Load2PlateModel() {
+
+  const loader = new GLTFLoader();
+
+  loader.load('./resources/plate/scene.gltf', (gltf) => {
+      gltf.scene.traverse(c => {
+          c.castShadow = true;
+          
+        });
+
+        gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0].rotation.set(-Math.PI/2,0,0)
+        gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0].scale.set(1/6,1/6,1/6)
+        gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0].position.set(10,1,0)
+        //this.objectGroup.add(gltf.scene)
+        gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0].userData.draggable = true;
+        gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0].userData.name = "Plate2";
+        this.object.push(gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0]);
+            //bounding box
+            this.rok6BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+            //gets the boundaries
+           this.rok6BB.setFromObject(gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0]);
+        //console.log(gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0]);     
+        this.scene.add(gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0]);
+
+
+  });
+  //this.object.push(this.objectGroup);
+}
   _OnWindowResize() {
       this.camera.aspect = window.innerWidth / window.innerHeight;
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
-  _checkCollisions() {
-    // console.log(this.rok1BB);
-    // console.log("heheh")
-    // console.log(this.box1BB)
-    if(this.object.length >=1) {
-      if(this.rok1BB.intersectsBox(this.box1BB)) {
-        this.box.position.y=this.rok1BB.max.y+5;
+  _checkCollisions(name, index) {
+
+    if(this.object.length >=5) {
+      
+      for(let i = 0; i< this.object.length; i++) {
+   
+        // this.rok1BB.copy(this.object[1].children[0].children[0].children[0].children[0].children[0].geometry.boundingBox).applyMatrix4(this.object[1].children[0].children[0].children[0].children[0].children[0].matrixWorld)
+        // this.rok3BB.copy(this.object[0].children[0].children[0].children[0].children[0].children[0].children[0].geometry.boundingBox).applyMatrix4(this.object[0].children[0].children[0].children[0].children[0].children[0].children[0].matrixWorld)
+        if(this.object[i].userData.name =="Plate2") {
+          this.rok5BB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld);
+          if(this.rok6BB.intersectsBox(this.rok5BB) || this.rok6BB.containsBox(this.rok5BB)){
+            this.object[i].position.y= this.rok6BB.max.y+0.4; 
+          } else if(this.rok1BB.intersectsBox(this.rok5BB) || this.rok1BB.containsBox(this.rok5BB)){
+            this.object[i].position.y= this.rok1BB.max.y+0.4; 
+          }else {
+            this.object[i].position.y =1;
+          }
+
+        }
+        if(this.object[i].userData.name =="Table2") {
+          this.rok6BB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld);
+          if(this.rok1BB.intersectsBox(this.rok6BB) || this.rok1BB.containsBox(this.rok6BB)){
+            this.object[i].position.y= this.rok1BB.max.y; 
+          } else {
+            this.object[i].position.y =1;
+          }
+        }
+        if(this.object[i].userData.name =="couch") {
+           this.rok7BB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld);
+        }
+        if(this.object[i].userData.name =="big table") {
+          this.rok1BB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld);
+
+       }
+       if(this.object[i].userData.name =="book") {
+        this.rok2BB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld);
+        if(this.rok6BB.intersectsBox(this.rok2BB) || this.rok6BB.containsBox(this.rok2BB)){
+          this.object[i].position.y= this.rok6BB.max.y-0.6; 
+        } else if(this.rok1BB.intersectsBox(this.rok2BB) || this.rok1BB.containsBox(this.rok2BB)){
+          this.object[i].position.y= this.rok1BB.max.y-0.6; 
+        }else {
+          this.object[i].position.y =0;
+        }
+     }     
+ 
+        
+     
+     }
+      if(this.rok6BB.intersectsBox(this.box1BB) || this.rok6BB.containsBox(this.box1BB)) {
+        this.box.position.y=this.rok6BB.max.y+5;
       } else {
         this.box.position.y =5;
       }
+
+
     }
 
-  }  
+  }
+simpleAction(){
+
+}    
+raycast() {
+  this.raycaster = new THREE.Raycaster();
+  this.clickMouse = new THREE.Vector2();
+  this.moveMouse = new THREE.Vector2();
+  this.draggable =[];
+
+  window.addEventListener("click",  (event) => {
+
+    if(this.draggable[0]) {
+      console.log('drag is gonezos '+ this.draggable[0].userData.name)
+      this.draggable.pop();
+      return;
+    }
+        
+    this.clickMouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    this.clickMouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+    this.raycaster.setFromCamera( this.clickMouse, this.camera );
+    this.found = this.raycaster.intersectObjects( this.scene.children);
+    console.log(this.found[0])
+    if(this.found.length>0 && this.found[0].object.userData.draggable) {
+      this.draggable.push(this.found[0].object);
+      console.log(this.draggable[0].userData.name);
+    }
+   }); 
+
+
+   window.addEventListener("mousemove",  (event) => {
+
+
+    this.moveMouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    this.moveMouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+
+   });    
   
+}
+
+dragObject() {
+  if(this.draggable[0] != null) {
+    //console.log("here");
+    this.raycaster.setFromCamera( this.moveMouse, this.camera );
+    this.found2 = this.raycaster.intersectObjects( this.scene.children );
+    if(this.found2.length>0) {
+      for(let o of this.found2){
+        if(!o.object.userData.ground)
+          continue
+        //console.log(o.point.x)  
+        this.draggable[0].position.x = o.point.x;
+        this.draggable[0].position.z = o.point.z;
+
+      }
+    }
+  }
+}
   _RAF() {
       requestAnimationFrame((t) => {
           if (this.previousRAF === null) {
             this.previousRAF = t;
           }
-          if(this.object.length>= 1) {
-            for(let i = 0; i< this.object.length; i++) {
-              this.rok1BB.copy(this.object[i].children[0].children[0].children[0].children[0].children[0].geometry.boundingBox).applyMatrix4(this.object[i].children[0].children[0].children[0].children[0].children[0].matrixWorld)
-          
-            }
+          this.dragObject();
+          if(this.object.length>= 2) {
+            //console.log(this.object)
+            //console.log(this.object[1].children[0].children[0].children[0].children[0].children[0]);
+          //  for(let i = 0; i< this.object.length; i++) {
+          //     // this.rok1BB.copy(this.object[1].children[0].children[0].children[0].children[0].children[0].geometry.boundingBox).applyMatrix4(this.object[1].children[0].children[0].children[0].children[0].children[0].matrixWorld)
+          //     // this.rok3BB.copy(this.object[0].children[0].children[0].children[0].children[0].children[0].children[0].geometry.boundingBox).applyMatrix4(this.object[0].children[0].children[0].children[0].children[0].children[0].children[0].matrixWorld)
+          //     if(this.object[i].userData.name =="Table2") {
+          //       this.rok5BB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld)
+          //     }
+          //     if(this.object[i].userData.name =="Plate2") {
+          //       this.rok6BB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld)
+          //     }
+          //     if(this.object[i].userData.name =="couch") {
+          //       this.rok7BB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld)
+          //     }    
+              
+           
+          //  }
           
              // console.log(this.rok1BB);
           }
           if(this.simpleobject.length>= 1) {
-            for(let i = 0; i< this.object.length; i++) {
+            for(let i = 0; i< this.simpleobject.length; i++) {
               this.box1BB.copy(this.simpleobject[i].geometry.boundingBox).applyMatrix4(this.simpleobject[i].matrixWorld)
           
             }
