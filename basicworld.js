@@ -169,7 +169,27 @@ class loadedWorld {
       this.setbounds = [];
 
 
-      this.stoneGeo = new THREE.BoxGeometry(0,0,0);
+      window.addEventListener("keydown",  (e) => {
+     
+        if(this.draggable[0]) {
+          switch (e.key) {
+            // case "ArrowUp":
+            //   this.draggable[0].rotation.x += 0.1;
+            //   console.log(this.draggable[0].rotation.x);
+            // break;
+            case "ArrowLeft":
+              this.draggable[0].rotation.y -= 0.1;
+            break;
+            // case "ArrowDown":
+            //   this.draggable[0].rotation.x -= 0.1;
+            // break;
+            case "ArrowRight":
+            this.draggable[0].rotation.y += 0.1;
+            break;
+          }
+        }
+
+    }); 
 
       this._RAF();
       
@@ -619,8 +639,7 @@ raycast() {
     this.moveMouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
 
-   });    
-  
+   }); 
 }
 
 dragObject() {
@@ -635,7 +654,7 @@ dragObject() {
         //console.log(o.point.x)  
         this.draggable[0].position.x = o.point.x;
         this.draggable[0].position.z = o.point.z;
-
+        
       }
     }
   }
