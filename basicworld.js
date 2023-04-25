@@ -7,6 +7,7 @@ import {DragControls} from './build/three/examples/jsm/controls/DragControls.js'
 
 import {FBXLoader} from './build/three/examples/jsm/loaders/FBXLoader.js';
 import {GLTFLoader} from './build/three/examples/jsm/loaders/GLTFLoader.js';
+import datGui from 'https://cdn.skypack.dev/dat.gui';
 class BasicCharacterControls {
   constructor(params) {
     this._Init(params);
@@ -137,8 +138,10 @@ class loadedWorld {
       this._InitializeLights();
       this._InitializeCamera();
       this._InitializeScene(); 
-      this._loadCube();
+     // this._loadCube();
       this.raycast();
+  
+      this.loadAll();
   }
 
   _Initialize() {
@@ -167,27 +170,50 @@ class loadedWorld {
       this.simpleobject = [];  
       this.resourcename = ["cab", "food"];
       this.setbounds = [];
+      this.params = {
+        MAX_HEIGHT: 100,
+        MAX_WIDTH: 100,
+    
+     }
+     this.wallMaterial =this.loadMaterial_('Substance_graph_', 4);
+     this.floorMaterial= this.loadMaterial_('Metal_ArtDeco_Tiles_001_', 4);
 
-
+   this.gui = new datGui.GUI();
       window.addEventListener("keydown",  (e) => {
      
         if(this.draggable[0]) {
-          switch (e.key) {
-            // case "ArrowUp":
-            //   this.draggable[0].rotation.x += 0.1;
-            //   console.log(this.draggable[0].rotation.x);
-            // break;
-            case "ArrowLeft":
-              this.draggable[0].rotation.y -= 0.1;
-            break;
-            // case "ArrowDown":
-            //   this.draggable[0].rotation.x -= 0.1;
-            // break;
-            case "ArrowRight":
-            this.draggable[0].rotation.y += 0.1;
-            break;
+          
+            switch (e.key) {
+              // case "ArrowUp":
+              //   this.draggable[0].rotation.x += 0.1;
+              //   console.log(this.draggable[0].rotation.x);
+              // break;
+              case "ArrowLeft":
+                this.draggable[0].rotation.y -= 0.1;
+              break;
+              // case "ArrowDown":
+              //   this.draggable[0].rotation.x -= 0.1;
+              // break;
+              case "ArrowRight":
+              this.draggable[0].rotation.y += 0.1;
+              break;
+            }
+          if(this.draggable[0].userData.name == "lantern") {
+            switch (e.key) {
+              case "ArrowUp":
+                this.draggable[0].children[6].intensity =0;
+                //console.log(this.draggable[0].rotation.x);
+              break;
+              case "ArrowDown":
+                this.draggable[0].children[6].intensity =1;
+                //console.log(this.draggable[0].rotation.x);
+              break;
+
+            }
           }
-        }
+          }
+          //console.log(this.draggable[0]);
+
 
     }); 
 
@@ -200,7 +226,7 @@ class loadedWorld {
   //
   _InitializeLights(){
       //lighting
-      this.scene.add(new THREE.AmbientLight(0xffffff, 0.7))
+      this.scene.add(new THREE.AmbientLight(0xffffff, 1))
 
       let dirLight = new THREE.DirectionalLight(0xffffff, 1)
       dirLight.position.set(- 60, 100, - 10);
@@ -213,10 +239,12 @@ class loadedWorld {
       dirLight.shadow.camera.far = 200;
       dirLight.shadow.mapSize.width = 4096;
       dirLight.shadow.mapSize.height = 4096;
-      this.scene.add(dirLight);
+      //this.scene.add(dirLight);
 
       dirLight = new THREE.AmbientLight(0x101010);
-      this.scene.add(dirLight);
+      //this.scene.add(dirLight);
+
+
   }
 
   _InitializeCamera() {
@@ -264,61 +292,120 @@ class loadedWorld {
       //geometry
       const textures = new THREE.TextureLoader();
       const maxAnisotropy = this.renderer.capabilities.getMaxAnisotropy();
-      const floorMaterial= this.loadMaterial_('Metal_ArtDeco_Tiles_001_', 4);
+      // const floorMaterial= this.loadMaterial_('Metal_ArtDeco_Tiles_001_', 4);
       // floor.anisotropy = maxAnisotropy;
       // floor.wrapS = THREE.RepeatWrapping;
       // floor.wrapT = THREE.RepeatWrapping;
       // floor.repeat.set(32, 32);
       // floor.encoding = THREE.sRGBEncoding;
       this.plane = new THREE.Mesh(
-        new THREE.PlaneGeometry(100, 100, 10, 10),
-        floorMaterial);
+        new THREE.PlaneGeometry(this.params.MAX_WIDTH, this.params.MAX_HEIGHT, 10, 10),
+        this.floorMaterial);
     this.plane.castShadow = false;
     this.plane.receiveShadow = true;
     this.plane.rotation.x = -Math.PI / 2;
     this.plane.userData.ground= true;
+    this.plane.userData.name = "wall";
    this.plane1BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
     //gets the boundaries
     this.plane1BB.setFromObject(this.plane);
     this.scene.add(this.plane);
         //  this._LoadtestModel();
     
-    const wallMaterial = this.loadMaterial_('Substance_graph_', 4);
+    //const wallMaterial = this.loadMaterial_('Substance_graph_', 4);
 
     const wall1 = new THREE.Mesh(
-      new THREE.BoxGeometry(100, 100, 4),
-      wallMaterial);
-    wall1.position.set(0, 40, -50);
+      new THREE.BoxGeometry(this.params.MAX_WIDTH, 100, 4),
+      this.wallMaterial);
+    wall1.position.set(0, 40, -this.params.MAX_HEIGHT/2);
     wall1.castShadow = true;
     wall1.receiveShadow = true;
+    wall1.userData.name ="wall";
+    //bounding box
+    this.wall1BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+    //gets the boundaries
+    this.wall1BB.setFromObject(wall1);
     this.scene.add(wall1);
 
     const wall2 = new THREE.Mesh(
-      new THREE.BoxGeometry(100, 100, 4),
-      wallMaterial);
-    wall2.position.set(0, 40, 50);
+      new THREE.BoxGeometry(this.params.MAX_WIDTH, 100, 4),
+      this.wallMaterial);
+    wall2.position.set(0, 40, this.params.MAX_HEIGHT/2);
     wall2.castShadow = true;
     wall2.receiveShadow = true;
+    wall2.userData.name ="wall";
+    //bounding box
+    this.wall2BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+    //gets the boundaries
+    this.wall2BB.setFromObject(wall2);
     this.scene.add(wall2);
 
 
 
-    const wall4 = new THREE.Mesh(
-      new THREE.BoxGeometry(4, 100, 100),
-      wallMaterial);
-    wall4.position.set(-50, 40, 0);
-    wall4.castShadow = true;
-    wall4.receiveShadow = true;
-    this.scene.add(wall4);
+    const wall3 = new THREE.Mesh(
+      new THREE.BoxGeometry(4, 100, this.params.MAX_HEIGHT),
+      this.wallMaterial);
+    wall3.position.set(-this.params.MAX_WIDTH/2, 40, 0);
+    wall3.castShadow = true;
+    wall3.receiveShadow = true;
+    wall3.userData.name ="wall";
+    //bounding box
+    this.wall3BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+    //gets the boundaries
+    this.wall3BB.setFromObject(wall3);    
+    this.scene.add(wall3);
 
     
+
+    
+  }
+
+  loadAll() {
     this._Load2Model();
     this._LoadCouchModel();
     this._Load2PlateModel(); 
     this._LoadBigTableModel();
     this._LoadBookModel();
-
+    this._LoadSomeModel();
+    this._LoadBedModel();
+    this.gui.add(this.params,'MAX_HEIGHT',50,150).name("Change Height").onChange(()=>this.sceneControls());
+    this.gui.add(this.params,'MAX_WIDTH',50,150).name("Change Width").onChange(()=>this.sceneControls());
   }
+
+sceneControls() {
+
+
+
+    // this.height = 20;
+    // this.MAX_HEIGHT = 10,
+
+   
+     // console.log(this.scene.children)
+      if(this.scene.children){
+        for(let k = 0; k <10; k++){
+            for(let i = 0; i < this.scene.children.length; i++){
+                if(this.scene.children[i].userData.name == "wall"){
+                    console.log("yes")
+                    this.scene.children[i].geometry.dispose();
+                    this.scene.remove(this.scene.getObjectById( this.scene.children[i].id, true ));
+                }
+              
+            
+            
+            }
+            if(k == 9) {
+                this._InitializeScene();
+            }
+        }
+      }
+
+
+   
+
+
+
+}
+
 
 
   loadMaterial_(name, tiling) {
@@ -332,7 +419,7 @@ class loadedWorld {
     metalMap.wrapT = THREE.RepeatWrapping;
     metalMap.repeat.set(tiling, tiling);
 
-    const albedo = mapLoader.load('resources/walls/' + name + 'basecolor.jpg');
+    const albedo = mapLoader.load('resources/walls/' + name + 'albedo.jpg');
     albedo.anisotropy = maxAnisotropy;
     albedo.wrapS = THREE.RepeatWrapping;
     albedo.wrapT = THREE.RepeatWrapping;
@@ -399,7 +486,7 @@ class loadedWorld {
 
          //stoneGeo = mergeBufferGeometries([stoneGeo,gltf.scene.children[0].children[0] ]);
          gltf.scene.children[0].children[0].children[0].children[0].children[0].position.set(0,0,-20);
-         gltf.scene.children[0].children[0].children[0].children[0].children[0].scale.set(.1,.1,.1); 
+         gltf.scene.children[0].children[0].children[0].children[0].children[0].scale.set(.2,.2,.2); 
 
           this.object.push(gltf.scene.children[0].children[0].children[0].children[0].children[0]);
           gltf.scene.children[0].children[0].children[0].children[0].children[0].userData.draggable = true;
@@ -409,7 +496,7 @@ class loadedWorld {
                this.rok7BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
         //       //gets the boundaries
               this.rok7BB.setFromObject(gltf.scene.children[0].children[0].children[0].children[0].children[0]);
-        //  // console.log(this.rok1BB);     
+        //  // console.log(this.bigTableBB);     
           this.scene.add(gltf.scene.children[0].children[0].children[0].children[0].children[0]);
   
   
@@ -429,18 +516,18 @@ class loadedWorld {
         // console.log(gltf.scene.children[0]);
 
          //stoneGeo = mergeBufferGeometries([stoneGeo,gltf.scene.children[0].children[0] ]);
-         gltf.scene.children[0].position.set(-20,0,-20);
-         gltf.scene.children[0].scale.set(15,10,12); 
+         gltf.scene.children[0].position.set(-20,0,20);
+         gltf.scene.children[0].scale.set(20,15,15); 
          gltf.scene.children[0].rotation.y = Math.PI/2;
           this.object.push(gltf.scene.children[0]);
           gltf.scene.children[0].userData.draggable = true;
           gltf.scene.children[0].userData.name = "big table";
           
         //       //bounding box
-               this.rok1BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+               this.bigTableBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
         //       //gets the boundaries
-              this.rok1BB.setFromObject(gltf.scene.children[0]);
-        //  // console.log(this.rok1BB);     
+              this.bigTableBB.setFromObject(gltf.scene.children[0]);
+        //  // console.log(this.bigTableBB);     
           this.scene.add(gltf.scene.children[0]);
   
   
@@ -460,18 +547,18 @@ class loadedWorld {
          console.log(gltf.scene.children[0]);
 
          //stoneGeo = mergeBufferGeometries([stoneGeo,gltf.scene.children[0].children[0] ]);
-         gltf.scene.children[0].position.set(-20,0,-20);
-         gltf.scene.children[0].scale.set(1,1,1); 
+         gltf.scene.children[0].position.set(-20,0,20);
+         gltf.scene.children[0].scale.set(1.5,1.5,1.5); 
          gltf.scene.children[0].rotation.z = Math.PI/2;
           this.object.push(gltf.scene.children[0]);
           gltf.scene.children[0].userData.draggable = true;
           gltf.scene.children[0].userData.name = "book";
           
         //       //bounding box
-               this.rok2BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+               this.bookBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
         //       //gets the boundaries
-              this.rok2BB.setFromObject(gltf.scene.children[0]);
-        //  // console.log(this.rok1BB);     
+              this.bookBB.setFromObject(gltf.scene.children[0]);
+        //  // console.log(this.bigTableBB);     
           this.scene.add(gltf.scene.children[0]);
   
   
@@ -496,10 +583,10 @@ class loadedWorld {
          gltf.scene.children[0].children[0].children[0].children[0].children[0].userData.draggable = true;
           gltf.scene.children[0].children[0].children[0].children[0].children[0].userData.name = "Table2";
               //bounding box
-          this.rok5BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+          this.tableBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
             //gets the boundaries
-           this.rok5BB.setFromObject(gltf.scene.children[0].children[0].children[0].children[0].children[0]);
-        // console.log(this.rok1BB);     
+           this.tableBB.setFromObject(gltf.scene.children[0].children[0].children[0].children[0].children[0]);
+        // console.log(this.bigTableBB);     
           this.scene.add(gltf.scene.children[0].children[0].children[0].children[0].children[0]);
 
 
@@ -529,11 +616,93 @@ _Load2PlateModel() {
         gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0].userData.name = "Plate2";
         this.object.push(gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0]);
             //bounding box
-            this.rok6BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+            this.plateBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
             //gets the boundaries
-           this.rok6BB.setFromObject(gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0]);
+           this.plateBB.setFromObject(gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0]);
         //console.log(gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0]);     
         this.scene.add(gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0]);
+
+
+  });
+  //this.object.push(this.objectGroup);
+}
+
+_LoadSomeModel() {
+
+  const loader = new GLTFLoader();
+
+  loader.load('./resources/light/lantern.gltf', (gltf) => {
+      gltf.scene.traverse(c => {
+          c.castShadow = true;
+          
+        });
+          console.log(gltf.scene.children[0]);
+        // gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0].rotation.set(-Math.PI/2,0,0)
+        // gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0].scale.set(1/6,1/6,1/6)
+        // gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0].position.set(10,1,0)
+        // //this.objectGroup.add(gltf.scene)
+        gltf.scene.children[0].userData.draggable = true;
+        gltf.scene.children[0].userData.name = "lantern";
+        //gltf.scene.children[0].rotation.x = -Math.PI/2;
+        gltf.scene.children[0].position.set(15,0,15);
+        let spotLight = new THREE.PointLight( 0xffffff );
+        spotLight.castShadow = true;
+
+        // spotLight.shadow.mapSize.width = 100;
+        // spotLight.shadow.mapSize.height = 100;
+
+        // spotLight.shadow.camera.near = 500;
+        // spotLight.shadow.camera.far = 4000;
+        // spotLight.shadow.camera.fov = 30;
+        spotLight.intensity =1.5;
+        spotLight.distance =100;
+        //spotLight.angle = -Math.PI;
+        spotLight.position.set( 0, 20, 0 );
+  
+        gltf.scene.children[0].add( spotLight );
+        
+       this.object.push(gltf.scene.children[0]);
+            //bounding box
+        this.lanternBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+            //gets the boundaries
+         this.lanternBB.setFromObject(gltf.scene.children[0]);
+        //console.log(gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0]);     
+        //gltf.scene.add(this.lanternBB);
+        this.scene.add(gltf.scene.children[0]);
+
+
+  });
+  //this.object.push(this.objectGroup);
+}
+
+_LoadBedModel() {
+
+  const loader = new GLTFLoader();
+
+  loader.load('./resources/bed/bed2.gltf', (gltf) => {
+      gltf.scene.traverse(c => {
+          c.castShadow = true;
+          
+        });
+          console.log(gltf.scene.children[0]);
+        // gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0].rotation.set(-Math.PI/2,0,0)
+        // gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0].scale.set(1/6,1/6,1/6)
+        // gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0].position.set(10,1,0)
+        // //this.objectGroup.add(gltf.scene)
+        gltf.scene.children[0].userData.draggable = true;
+        gltf.scene.children[0].userData.name = "bed";
+        //gltf.scene.children[0].rotation.x = -Math.PI/2;
+        gltf.scene.children[0].position.set(15,0,15);
+        gltf.scene.children[0].scale.set(.4,.4,.4); 
+
+       this.object.push(gltf.scene.children[0]);
+            //bounding box
+        this.bedBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+            //gets the boundaries
+         this.bedBB.setFromObject(gltf.scene.children[0]);
+        //console.log(gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0]);     
+        //gltf.scene.add(this.lanternBB);
+        this.scene.add(gltf.scene.children[0]);
 
 
   });
@@ -544,66 +713,107 @@ _Load2PlateModel() {
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
-  _checkCollisions(name, index) {
-
-    if(this.object.length >=5) {
-      
-      for(let i = 0; i< this.object.length; i++) {
+  _checkCollisions() {
    
-        // this.rok1BB.copy(this.object[1].children[0].children[0].children[0].children[0].children[0].geometry.boundingBox).applyMatrix4(this.object[1].children[0].children[0].children[0].children[0].children[0].matrixWorld)
+    if(this.object.length >=7) {
+     
+      for(let i = 0; i< this.object.length; i++) {
+    
+        //console.log(this.object[i]);
+        // this.bigTableBB.copy(this.object[1].children[0].children[0].children[0].children[0].children[0].geometry.boundingBox).applyMatrix4(this.object[1].children[0].children[0].children[0].children[0].children[0].matrixWorld)
         // this.rok3BB.copy(this.object[0].children[0].children[0].children[0].children[0].children[0].children[0].geometry.boundingBox).applyMatrix4(this.object[0].children[0].children[0].children[0].children[0].children[0].children[0].matrixWorld)
         if(this.object[i].userData.name =="Plate2") {
-          this.rok5BB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld);
-          if(this.rok6BB.intersectsBox(this.rok5BB) || this.rok6BB.containsBox(this.rok5BB)){
-            this.object[i].position.y= this.rok6BB.max.y+0.4; 
-          } else if(this.rok1BB.intersectsBox(this.rok5BB) || this.rok1BB.containsBox(this.rok5BB)){
-            this.object[i].position.y= this.rok1BB.max.y+0.4; 
-          }else {
+          this.plateBB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld);
+          this.simpleAction(i,this.tableBB);
+          if(this.plateBB.intersectsBox(this.tableBB) || this.plateBB.containsBox(this.tableBB)){
+            this.object[i].position.y= this.tableBB.max.y+0.4; 
+          } else if(this.plateBB.intersectsBox(this.bigTableBB) || this.plateBB.containsBox(this.bigTableBB)){
+            this.object[i].position.y= this.bigTableBB.max.y+0.4; 
+          } else if(this.plateBB.intersectsBox(this.bedBB) || this.plateBB.containsBox(this.bedBB)){
+            this.object[i].position.y= this.bedBB.max.y-7; 
+          } else if(this.plateBB.intersectsBox(this.rok7BB) || this.plateBB.containsBox(this.rok7BB)){
+            this.object[i].position.y= this.rok7BB.max.y-7.5; 
+          } else {
             this.object[i].position.y =1;
           }
-
+         
         }
         if(this.object[i].userData.name =="Table2") {
-          this.rok6BB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld);
-          if(this.rok1BB.intersectsBox(this.rok6BB) || this.rok1BB.containsBox(this.rok6BB)){
-            this.object[i].position.y= this.rok1BB.max.y; 
+          this.tableBB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld);
+          this.simpleAction(i,this.plateBB);
+          if(this.bigTableBB.intersectsBox(this.tableBB) || this.bigTableBB.containsBox(this.tableBB)){
+            this.object[i].position.y= this.bigTableBB.max.y; 
           } else {
             this.object[i].position.y =1;
           }
         }
         if(this.object[i].userData.name =="couch") {
            this.rok7BB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld);
+           this.simpleAction(i,this.rok7BB);
         }
         if(this.object[i].userData.name =="big table") {
-          this.rok1BB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld);
-
+          this.bigTableBB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld);
+          this.simpleAction(i,this.bigTableBB);
        }
        if(this.object[i].userData.name =="book") {
-        this.rok2BB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld);
-        if(this.rok6BB.intersectsBox(this.rok2BB) || this.rok6BB.containsBox(this.rok2BB)){
-          this.object[i].position.y= this.rok6BB.max.y-0.6; 
-        } else if(this.rok1BB.intersectsBox(this.rok2BB) || this.rok1BB.containsBox(this.rok2BB)){
-          this.object[i].position.y= this.rok1BB.max.y-0.6; 
-        }else {
+        //console.log("hhhhhh");
+        this.bookBB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld);
+        this.simpleAction(i,this.bookBB);
+        if(this.tableBB.intersectsBox(this.bookBB) || this.tableBB.containsBox(this.bookBB)){
+          this.object[i].position.y= this.tableBB.max.y-1; 
+        } else if(this.bigTableBB.intersectsBox(this.bookBB) || this.bigTableBB.containsBox(this.bookBB)){
+          this.object[i].position.y= this.bigTableBB.max.y-1; 
+        } else if(this.bookBB.intersectsBox(this.bedBB) || this.bookBB.containsBox(this.bedBB)){
+          this.object[i].position.y= this.bedBB.max.y-8; 
+        } else if(this.bookBB.intersectsBox(this.rok7BB) || this.bookBB.containsBox(this.rok7BB)){
+          this.object[i].position.y= this.rok7BB.max.y-8.5; 
+        } else {
           this.object[i].position.y =0;
         }
      }     
- 
+     if(this.object[i].userData.name =="lantern") {
+
+      this.lanternBB.copy(this.object[i].children[4].geometry.boundingBox).applyMatrix4(this.object[i].children[4].matrixWorld);
+      this.simpleAction(i,this.tableBB);
+      if(this.lanternBB.intersectsBox(this.tableBB) || this.lanternBB.containsBox(this.tableBB)){
+        this.object[i].position.y= this.tableBB.max.y-0.5; 
+      } else if(this.bigTableBB.intersectsBox(this.lanternBB) || this.bigTableBB.containsBox(this.lanternBB)){
+        this.object[i].position.y= this.bigTableBB.max.y-0.5; 
+      } else if(this.lanternBB.intersectsBox(this.bedBB) || this.lanternBB.containsBox(this.bedBB)){
+        this.object[i].position.y= this.bedBB.max.y-7; 
+      }else if(this.lanternBB.intersectsBox(this.rok7BB) || this.lanternBB.containsBox(this.rok7BB)){
+        this.object[i].position.y= this.rok7BB.max.y-8; 
+      } else {
+        this.object[i].position.y =0;
+      }
+    }
+
+    if(this.object[i].userData.name =="bed") {
+
+      this.bedBB.copy(this.object[i].children[2].geometry.boundingBox).applyMatrix4(this.object[i].children[2].matrixWorld);
+
+    }
         
      
      }
-      if(this.rok6BB.intersectsBox(this.box1BB) || this.rok6BB.containsBox(this.box1BB)) {
-        this.box.position.y=this.rok6BB.max.y+5;
-      } else {
-        this.box.position.y =5;
-      }
+      // if(this.tableBB.intersectsBox(this.box1BB) || this.tableBB.containsBox(this.box1BB)) {
+      //   this.box.position.y=this.tableBB.max.y+5;
+      // } else {
+      //   this.box.position.y =5;
+      // }
 
 
     }
 
   }
-simpleAction(){
-
+simpleAction(i, box){
+  // if(this.wall1BB.intersectsBox(box) || this.wall1BB.containsBox(box)){
+  //   this.object[i].position.y= this.plateBB.max.y-0.6; 
+  // } else if(this.wall2BB.intersectsBox(box) || this.wall2BB.containsBox(box)){
+  //   this.object[i].position.y= this.bigTableBB.max.y-0.6; 
+  // }else if(this.wall3BB.intersectsBox(box) || this.wall3BB.containsBox(box)){
+  //   this.object[i].position.x= this.wall3BB.min.z+7; 
+  // }
 }    
 raycast() {
   this.raycaster = new THREE.Raycaster();
@@ -625,9 +835,12 @@ raycast() {
     this.raycaster.setFromCamera( this.clickMouse, this.camera );
     this.found = this.raycaster.intersectObjects( this.scene.children);
     console.log(this.found[0])
-    if(this.found.length>0 && this.found[0].object.userData.draggable) {
+    if((this.found.length>0 && this.found[0].object.userData.draggable)) {
       this.draggable.push(this.found[0].object);
       console.log(this.draggable[0].userData.name);
+    } else if((this.found.length>0 && this.found[0].object.parent.userData.draggable)) {
+      this.draggable.push(this.found[0].object.parent);
+      console.log(this.found[0].object.parent.userData.name);
     }
    }); 
 
@@ -651,9 +864,12 @@ dragObject() {
       for(let o of this.found2){
         if(!o.object.userData.ground)
           continue
-        //console.log(o.point.x)  
-        this.draggable[0].position.x = o.point.x;
-        this.draggable[0].position.z = o.point.z;
+        //console.log(o.point.x) 
+
+          this.draggable[0].position.x = o.point.x;
+          this.draggable[0].position.z = o.point.z;
+ 
+
         
       }
     }
@@ -669,13 +885,13 @@ dragObject() {
             //console.log(this.object)
             //console.log(this.object[1].children[0].children[0].children[0].children[0].children[0]);
           //  for(let i = 0; i< this.object.length; i++) {
-          //     // this.rok1BB.copy(this.object[1].children[0].children[0].children[0].children[0].children[0].geometry.boundingBox).applyMatrix4(this.object[1].children[0].children[0].children[0].children[0].children[0].matrixWorld)
+          //     // this.bigTableBB.copy(this.object[1].children[0].children[0].children[0].children[0].children[0].geometry.boundingBox).applyMatrix4(this.object[1].children[0].children[0].children[0].children[0].children[0].matrixWorld)
           //     // this.rok3BB.copy(this.object[0].children[0].children[0].children[0].children[0].children[0].children[0].geometry.boundingBox).applyMatrix4(this.object[0].children[0].children[0].children[0].children[0].children[0].children[0].matrixWorld)
           //     if(this.object[i].userData.name =="Table2") {
-          //       this.rok5BB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld)
+          //       this.tableBB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld)
           //     }
           //     if(this.object[i].userData.name =="Plate2") {
-          //       this.rok6BB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld)
+          //       this.plateBB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld)
           //     }
           //     if(this.object[i].userData.name =="couch") {
           //       this.rok7BB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld)
@@ -684,16 +900,16 @@ dragObject() {
            
           //  }
           
-             // console.log(this.rok1BB);
+             // console.log(this.bigTableBB);
           }
-          if(this.simpleobject.length>= 1) {
-            for(let i = 0; i< this.simpleobject.length; i++) {
-              this.box1BB.copy(this.simpleobject[i].geometry.boundingBox).applyMatrix4(this.simpleobject[i].matrixWorld)
+          // if(this.simpleobject.length>= 1) {
+          //   for(let i = 0; i< this.simpleobject.length; i++) {
+          //     this.box1BB.copy(this.simpleobject[i].geometry.boundingBox).applyMatrix4(this.simpleobject[i].matrixWorld)
           
-            }
+          //   }
           
-             // console.log(this.rok1BB);
-          }
+          //    // console.log(this.bigTableBB);
+          // }
 
           
           this._checkCollisions();
