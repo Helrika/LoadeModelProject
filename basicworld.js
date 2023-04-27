@@ -167,9 +167,7 @@ class loadedWorld {
       //animation state
       this.mixers = [];
       this.object = [];
-      this.simpleobject = [];  
-      this.resourcename = ["cab", "food"];
-      this.setbounds = [];
+
       this.params = {
         MAX_HEIGHT: 100,
         MAX_WIDTH: 100,
@@ -184,16 +182,11 @@ class loadedWorld {
         if(this.draggable[0]) {
           
             switch (e.key) {
-              // case "ArrowUp":
-              //   this.draggable[0].rotation.x += 0.1;
-              //   console.log(this.draggable[0].rotation.x);
-              // break;
+
               case "ArrowLeft":
                 this.draggable[0].rotation.y -= 0.1;
               break;
-              // case "ArrowDown":
-              //   this.draggable[0].rotation.x -= 0.1;
-              // break;
+
               case "ArrowRight":
               this.draggable[0].rotation.y += 0.1;
               break;
@@ -205,14 +198,14 @@ class loadedWorld {
                 //console.log(this.draggable[0].rotation.x);
               break;
               case "ArrowDown":
-                this.draggable[0].children[6].intensity =1;
+                this.draggable[0].children[6].intensity =1.5;
                 //console.log(this.draggable[0].rotation.x);
               break;
 
             }
           }
           }
-          //console.log(this.draggable[0]);
+
 
 
     }); 
@@ -259,45 +252,12 @@ class loadedWorld {
       orbitControls.enablePan = false
       orbitControls.maxPolarAngle = Math.PI / 2 - 0.05
       orbitControls.update();
-
-
-     
-      // this.dControls = new DragControls(this.object, this.camera, this.renderer.domElement);
-      // this.dControls.transformGroup = false;
-      // this.dControls.addEventListener("hoveron", function (event) {
-        
-      //  // event.object.material.wireframe = true;
-      //   orbitControls.enabled = false;
-      // });
-      // this.dControls.addEventListener("hoveroff", function (event) {
-        
-      //  // event.object.material.wireframe = false;
-      //   orbitControls.enabled = true;
-      // }); 
-
-      // this.dControls2 = new DragControls(this.simpleobject, this.camera, this.renderer.domElement);
-      // this.dControls2.transformGroup = false;
-      // this.dControls2.addEventListener("hoveron", function (event) {
-        
-      //  // event.object.material.wireframe = true;
-      //   orbitControls.enabled = false;
-      // });
-      // this.dControls2.addEventListener("hoveroff", function (event) {
-        
-      //  // event.object.material.wireframe = false;
-      //   orbitControls.enabled = true;
-      // });    
+ 
   }
   _InitializeScene() {
       //geometry
-      const textures = new THREE.TextureLoader();
-      const maxAnisotropy = this.renderer.capabilities.getMaxAnisotropy();
-      // const floorMaterial= this.loadMaterial_('Metal_ArtDeco_Tiles_001_', 4);
-      // floor.anisotropy = maxAnisotropy;
-      // floor.wrapS = THREE.RepeatWrapping;
-      // floor.wrapT = THREE.RepeatWrapping;
-      // floor.repeat.set(32, 32);
-      // floor.encoding = THREE.sRGBEncoding;
+
+
       this.plane = new THREE.Mesh(
         new THREE.PlaneGeometry(this.params.MAX_WIDTH, this.params.MAX_HEIGHT, 10, 10),
         this.floorMaterial);
@@ -310,9 +270,6 @@ class loadedWorld {
     //gets the boundaries
     this.plane1BB.setFromObject(this.plane);
     this.scene.add(this.plane);
-        //  this._LoadtestModel();
-    
-    //const wallMaterial = this.loadMaterial_('Substance_graph_', 4);
 
     const wall1 = new THREE.Mesh(
       new THREE.BoxGeometry(this.params.MAX_WIDTH, 100, 4),
@@ -368,19 +325,11 @@ class loadedWorld {
     this._LoadBookModel();
     this._LoadSomeModel();
     this._LoadBedModel();
-    this.gui.add(this.params,'MAX_HEIGHT',50,150).name("Change Height").onChange(()=>this.sceneControls());
-    this.gui.add(this.params,'MAX_WIDTH',50,150).name("Change Width").onChange(()=>this.sceneControls());
+    this.gui.add(this.params,'MAX_HEIGHT',100,150).name("Change Height").onChange(()=>this.sceneControls());
+    this.gui.add(this.params,'MAX_WIDTH',100,150).name("Change Width").onChange(()=>this.sceneControls());
   }
 
 sceneControls() {
-
-
-
-    // this.height = 20;
-    // this.MAX_HEIGHT = 10,
-
-   
-     // console.log(this.scene.children)
       if(this.scene.children){
         for(let k = 0; k <10; k++){
             for(let i = 0; i < this.scene.children.length; i++){
@@ -399,11 +348,6 @@ sceneControls() {
         }
       }
 
-
-   
-
-
-
 }
 
 
@@ -419,12 +363,12 @@ sceneControls() {
     metalMap.wrapT = THREE.RepeatWrapping;
     metalMap.repeat.set(tiling, tiling);
 
-    const albedo = mapLoader.load('resources/walls/' + name + 'albedo.jpg');
-    albedo.anisotropy = maxAnisotropy;
-    albedo.wrapS = THREE.RepeatWrapping;
-    albedo.wrapT = THREE.RepeatWrapping;
-    albedo.repeat.set(tiling, tiling);
-    albedo.encoding = THREE.sRGBEncoding;
+    const base = mapLoader.load('resources/walls/' + name + 'base.jpg');
+    base.anisotropy = maxAnisotropy;
+    base.wrapS = THREE.RepeatWrapping;
+    base.wrapT = THREE.RepeatWrapping;
+    base.repeat.set(tiling, tiling);
+    base.encoding = THREE.sRGBEncoding;
 
     const normalMap = mapLoader.load('resources/walls/' + name + 'normal.jpg');
     normalMap.anisotropy = maxAnisotropy;
@@ -440,7 +384,7 @@ sceneControls() {
 
     const material = new THREE.MeshStandardMaterial({
       metalnessMap: metalMap,
-      map: albedo,
+      map: base,
       normalMap: normalMap,
       roughnessMap: roughnessMap,
     });
@@ -448,30 +392,35 @@ sceneControls() {
     return material;
   }
 
-  //animated model
-  _loadCube () {
-    this.box = new THREE.Mesh(
-      new THREE.BoxGeometry(10, 10, 10),
-      new THREE.MeshPhongMaterial({
-          color: 0xFFFFFF,
-        }));
-        this.box.position.set(5,5,15);
-        this.box.castShadow = true;
-        this.box.receiveShadow = true;
+  _LoadBookModel() {
+    
+    const loader = new GLTFLoader();
+    
+    loader.load('./resources/book/book.gltf', (gltf) => {
+        gltf.scene.traverse(c => {
+            c.castShadow = true;
+    
+          });
+         console.log(gltf.scene.children[0]);
 
+  
+         gltf.scene.children[0].position.set(-20,0,20);
+         gltf.scene.children[0].scale.set(1.5,1.5,1.5); 
+         gltf.scene.children[0].rotation.z = Math.PI/2;
+          this.object.push(gltf.scene.children[0]);
+          gltf.scene.children[0].userData.draggable = true;
+          gltf.scene.children[0].userData.name = "book";
+          
+        //       //bounding box
+               this.bookBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+        //       //gets the boundaries
+              this.bookBB.setFromObject(gltf.scene.children[0]);
+  
+          this.scene.add(gltf.scene.children[0]);
 
-    //bounding box
-    this.box1BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-    //gets the boundaries
-    this.box1BB.setFromObject(this.box);
-    //console.log(box1BB);
-    this.simpleobject.push(this.box);   
-    this.scene.add(this.box) ;
-    this.box.userData.draggable = true;
-    this.box.userData.name = "BOX";
+    });
+
   }
-
-  //static model
 
   _LoadCouchModel() {
     
@@ -482,9 +431,6 @@ sceneControls() {
             c.castShadow = true;
     
           });
-        // console.log(gltf.scene.children[0].children[0].children[0].children[0].children[0]);
-
-         //stoneGeo = mergeBufferGeometries([stoneGeo,gltf.scene.children[0].children[0] ]);
          gltf.scene.children[0].children[0].children[0].children[0].children[0].position.set(0,0,-20);
          gltf.scene.children[0].children[0].children[0].children[0].children[0].scale.set(.2,.2,.2); 
 
@@ -496,12 +442,12 @@ sceneControls() {
                this.rok7BB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
         //       //gets the boundaries
               this.rok7BB.setFromObject(gltf.scene.children[0].children[0].children[0].children[0].children[0]);
-        //  // console.log(this.bigTableBB);     
+   
           this.scene.add(gltf.scene.children[0].children[0].children[0].children[0].children[0]);
   
   
     });
-    //this.object.push(this.objectGroup);
+   
   }
 
   _LoadBigTableModel() {
@@ -513,9 +459,7 @@ sceneControls() {
             c.castShadow = true;
     
           });
-        // console.log(gltf.scene.children[0]);
 
-         //stoneGeo = mergeBufferGeometries([stoneGeo,gltf.scene.children[0].children[0] ]);
          gltf.scene.children[0].position.set(-20,0,20);
          gltf.scene.children[0].scale.set(20,15,15); 
          gltf.scene.children[0].rotation.y = Math.PI/2;
@@ -535,36 +479,7 @@ sceneControls() {
     //this.object.push(this.objectGroup);
   }
 
-  _LoadBookModel() {
-    
-    const loader = new GLTFLoader();
-    
-    loader.load('./resources/book/book.gltf', (gltf) => {
-        gltf.scene.traverse(c => {
-            c.castShadow = true;
-    
-          });
-         console.log(gltf.scene.children[0]);
 
-         //stoneGeo = mergeBufferGeometries([stoneGeo,gltf.scene.children[0].children[0] ]);
-         gltf.scene.children[0].position.set(-20,0,20);
-         gltf.scene.children[0].scale.set(1.5,1.5,1.5); 
-         gltf.scene.children[0].rotation.z = Math.PI/2;
-          this.object.push(gltf.scene.children[0]);
-          gltf.scene.children[0].userData.draggable = true;
-          gltf.scene.children[0].userData.name = "book";
-          
-        //       //bounding box
-               this.bookBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-        //       //gets the boundaries
-              this.bookBB.setFromObject(gltf.scene.children[0]);
-        //  // console.log(this.bigTableBB);     
-          this.scene.add(gltf.scene.children[0]);
-  
-  
-    });
-    //this.object.push(this.objectGroup);
-  }
 
   _Load2Model() {
 
@@ -586,16 +501,13 @@ sceneControls() {
           this.tableBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
             //gets the boundaries
            this.tableBB.setFromObject(gltf.scene.children[0].children[0].children[0].children[0].children[0]);
-        // console.log(this.bigTableBB);     
+    
           this.scene.add(gltf.scene.children[0].children[0].children[0].children[0].children[0]);
 
 
     });
-    //this.object.push(this.objectGroup);
+
 }  
-
-
-
 
 
 _Load2PlateModel() {
@@ -636,11 +548,8 @@ _LoadSomeModel() {
           c.castShadow = true;
           
         });
-          console.log(gltf.scene.children[0]);
-        // gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0].rotation.set(-Math.PI/2,0,0)
-        // gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0].scale.set(1/6,1/6,1/6)
-        // gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0].position.set(10,1,0)
-        // //this.objectGroup.add(gltf.scene)
+
+
         gltf.scene.children[0].userData.draggable = true;
         gltf.scene.children[0].userData.name = "lantern";
         //gltf.scene.children[0].rotation.x = -Math.PI/2;
@@ -648,12 +557,6 @@ _LoadSomeModel() {
         let spotLight = new THREE.PointLight( 0xffffff );
         spotLight.castShadow = true;
 
-        // spotLight.shadow.mapSize.width = 100;
-        // spotLight.shadow.mapSize.height = 100;
-
-        // spotLight.shadow.camera.near = 500;
-        // spotLight.shadow.camera.far = 4000;
-        // spotLight.shadow.camera.fov = 30;
         spotLight.intensity =1.5;
         spotLight.distance =100;
         //spotLight.angle = -Math.PI;
@@ -666,13 +569,12 @@ _LoadSomeModel() {
         this.lanternBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
             //gets the boundaries
          this.lanternBB.setFromObject(gltf.scene.children[0]);
-        //console.log(gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0]);     
-        //gltf.scene.add(this.lanternBB);
+
         this.scene.add(gltf.scene.children[0]);
 
 
   });
-  //this.object.push(this.objectGroup);
+
 }
 
 _LoadBedModel() {
@@ -685,10 +587,7 @@ _LoadBedModel() {
           
         });
           console.log(gltf.scene.children[0]);
-        // gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0].rotation.set(-Math.PI/2,0,0)
-        // gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0].scale.set(1/6,1/6,1/6)
-        // gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0].position.set(10,1,0)
-        // //this.objectGroup.add(gltf.scene)
+
         gltf.scene.children[0].userData.draggable = true;
         gltf.scene.children[0].userData.name = "bed";
         //gltf.scene.children[0].rotation.x = -Math.PI/2;
@@ -700,13 +599,12 @@ _LoadBedModel() {
         this.bedBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
             //gets the boundaries
          this.bedBB.setFromObject(gltf.scene.children[0]);
-        //console.log(gltf.scene.children[0].children[0].children[0].children[0].children[0].children[0]);     
-        //gltf.scene.add(this.lanternBB);
+
         this.scene.add(gltf.scene.children[0]);
 
 
   });
-  //this.object.push(this.objectGroup);
+
 }
   _OnWindowResize() {
       this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -718,10 +616,6 @@ _LoadBedModel() {
     if(this.object.length >=7) {
      
       for(let i = 0; i< this.object.length; i++) {
-    
-        //console.log(this.object[i]);
-        // this.bigTableBB.copy(this.object[1].children[0].children[0].children[0].children[0].children[0].geometry.boundingBox).applyMatrix4(this.object[1].children[0].children[0].children[0].children[0].children[0].matrixWorld)
-        // this.rok3BB.copy(this.object[0].children[0].children[0].children[0].children[0].children[0].children[0].geometry.boundingBox).applyMatrix4(this.object[0].children[0].children[0].children[0].children[0].children[0].children[0].matrixWorld)
         if(this.object[i].userData.name =="Plate2") {
           this.plateBB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld);
           this.simpleAction(i,this.tableBB);
@@ -796,24 +690,13 @@ _LoadBedModel() {
         
      
      }
-      // if(this.tableBB.intersectsBox(this.box1BB) || this.tableBB.containsBox(this.box1BB)) {
-      //   this.box.position.y=this.tableBB.max.y+5;
-      // } else {
-      //   this.box.position.y =5;
-      // }
 
 
     }
 
   }
 simpleAction(i, box){
-  // if(this.wall1BB.intersectsBox(box) || this.wall1BB.containsBox(box)){
-  //   this.object[i].position.y= this.plateBB.max.y-0.6; 
-  // } else if(this.wall2BB.intersectsBox(box) || this.wall2BB.containsBox(box)){
-  //   this.object[i].position.y= this.bigTableBB.max.y-0.6; 
-  // }else if(this.wall3BB.intersectsBox(box) || this.wall3BB.containsBox(box)){
-  //   this.object[i].position.x= this.wall3BB.min.z+7; 
-  // }
+
 }    
 raycast() {
   this.raycaster = new THREE.Raycaster();
@@ -834,13 +717,13 @@ raycast() {
 
     this.raycaster.setFromCamera( this.clickMouse, this.camera );
     this.found = this.raycaster.intersectObjects( this.scene.children);
-    console.log(this.found[0])
+
     if((this.found.length>0 && this.found[0].object.userData.draggable)) {
       this.draggable.push(this.found[0].object);
-      console.log(this.draggable[0].userData.name);
+ 
     } else if((this.found.length>0 && this.found[0].object.parent.userData.draggable)) {
       this.draggable.push(this.found[0].object.parent);
-      console.log(this.found[0].object.parent.userData.name);
+
     }
    }); 
 
@@ -857,20 +740,15 @@ raycast() {
 
 dragObject() {
   if(this.draggable[0] != null) {
-    //console.log("here");
+
     this.raycaster.setFromCamera( this.moveMouse, this.camera );
     this.found2 = this.raycaster.intersectObjects( this.scene.children );
     if(this.found2.length>0) {
       for(let o of this.found2){
         if(!o.object.userData.ground)
           continue
-        //console.log(o.point.x) 
-
           this.draggable[0].position.x = o.point.x;
           this.draggable[0].position.z = o.point.z;
- 
-
-        
       }
     }
   }
@@ -881,37 +759,7 @@ dragObject() {
             this.previousRAF = t;
           }
           this.dragObject();
-          if(this.object.length>= 2) {
-            //console.log(this.object)
-            //console.log(this.object[1].children[0].children[0].children[0].children[0].children[0]);
-          //  for(let i = 0; i< this.object.length; i++) {
-          //     // this.bigTableBB.copy(this.object[1].children[0].children[0].children[0].children[0].children[0].geometry.boundingBox).applyMatrix4(this.object[1].children[0].children[0].children[0].children[0].children[0].matrixWorld)
-          //     // this.rok3BB.copy(this.object[0].children[0].children[0].children[0].children[0].children[0].children[0].geometry.boundingBox).applyMatrix4(this.object[0].children[0].children[0].children[0].children[0].children[0].children[0].matrixWorld)
-          //     if(this.object[i].userData.name =="Table2") {
-          //       this.tableBB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld)
-          //     }
-          //     if(this.object[i].userData.name =="Plate2") {
-          //       this.plateBB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld)
-          //     }
-          //     if(this.object[i].userData.name =="couch") {
-          //       this.rok7BB.copy(this.object[i].geometry.boundingBox).applyMatrix4(this.object[i].matrixWorld)
-          //     }    
-              
-           
-          //  }
-          
-             // console.log(this.bigTableBB);
-          }
-          // if(this.simpleobject.length>= 1) {
-          //   for(let i = 0; i< this.simpleobject.length; i++) {
-          //     this.box1BB.copy(this.simpleobject[i].geometry.boundingBox).applyMatrix4(this.simpleobject[i].matrixWorld)
-          
-          //   }
-          
-          //    // console.log(this.bigTableBB);
-          // }
 
-          
           this._checkCollisions();
           this._RAF();
     
